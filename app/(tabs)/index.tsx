@@ -1,5 +1,6 @@
 import MovieCard from "@/components/MovieCard";
 import SearchBar from "@/components/SearchBar";
+import TrendingCard from "@/components/TrendingCard";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
@@ -39,7 +40,7 @@ export default function Index() {
           renderItem={( {item } ) => (
             <MovieCard {...item}/>
           )}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           numColumns={3}
           columnWrapperStyle={{
             justifyContent: 'flex-start',
@@ -47,36 +48,47 @@ export default function Index() {
             paddingRight: 5,
             marginBottom: 10
           }}
-          className="px-5 pb-32"
-          scrollEnabled={true}
+          className="pb-32"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
           ListHeaderComponent={
-            <View className="px-0">
+            <View>
               <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
               <SearchBar
                 placeholder="Search for a movie"
                 onPress={() => router.push("/search")}
               />
-              {trendingMovies && (
-                <>
-                  <View className="mt-10">
-                    <Text className="text-lg text-white font-bold">Trending Movies</Text>
-                  </View>
+              {
+                trendingMovies && trendingMovies.length > 0 && (
+                <View className="mt-10 mb-5">
+                  <Text className="text-lg text-white font-bold mb-3">
+                    Trending Movies
+                  </Text>
                   <FlatList
                     data={trendingMovies}
-                    renderItem={({ item }) => (
-                      <Text className="text-white text-sm">{ item.title }</Text>
+                    renderItem={ ( {item, index } ) => (
+                      <TrendingCard movie={item} index={index}/>
                     )}
-                    keyExtractor={(item) => item.movie_id?.toString()}
-                    scrollEnabled={false}
+                    keyExtractor={(item) => item.movie_id?.toString() || item.$id?.toString()}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    ItemSeparatorComponent={
+                      () => <View className="w-4"/>
+                    }
+                    contentContainerStyle={{
+                      gap: 20,
+                      paddingRight: 5
+                    }}
+                    scrollEnabled={true}
                   />
-                </>
-              )}
+                </View>
+                )
+              }
               <Text className="text-lg text-white font-bold mt-5 mb-3">
                 Latest Movies
               </Text>
             </View>
           }
-          showsVerticalScrollIndicator={false}
         />
       )}
     </View>
